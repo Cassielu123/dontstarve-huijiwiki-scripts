@@ -7,3 +7,5 @@ scripts
 CLAUDE.local.md
 Agent/fetched_content.json
 Agent/temp
+.trae
+.vscode
