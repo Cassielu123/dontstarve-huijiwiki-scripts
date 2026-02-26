@@ -2,3 +2,8 @@ __pycache__
 .venv
 config.json
 Prefab History\Depot 322331 (Don't Starve Together - Windows) · SteamDB_files
+
+# vscode的配置
+/.vscode
+# 技能树输出目录
+/Skilltree/skilltrees
