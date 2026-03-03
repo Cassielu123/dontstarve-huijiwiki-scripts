@@ -55,7 +55,14 @@ DEFAULT_PAGES = [
 
 def fetch_pages(page_names, output_file="Agent/fetched_content.json"):
     """抓取指定页面的源代码"""
-    fetched_content = {}
+    
+    # 尝试加载已存在的内容
+    try:
+        with open(output_file, "r", encoding="utf-8") as f:
+            fetched_content = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        fetched_content = {}
+
     failed_pages = []
 
     print(f"开始抓取 {len(page_names)} 个页面...")
@@ -69,7 +76,7 @@ def fetch_pages(page_names, output_file="Agent/fetched_content.json"):
                 continue
 
             content = page.text()
-            # 保存页面元数据
+            # 保存或更新页面元数据
             fetched_content[page_name] = {
                 "content": content,
                 "length": len(content),
