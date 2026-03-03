@@ -1,8 +1,9 @@
-import sys, os
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from main import *
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-VER = "DST" # 改成 DS 如果是单机版
+VER = "DST"  # 改成 DS 如果要更新单机版
 itemtable = "Data:ItemTable.tabx" if VER == "DST" else "Data:DSItemTable.tabx"
 
 if VER == "DST":
@@ -146,7 +147,28 @@ pagedata = json.dumps({
     "data": new_itemtable,
 }, ensure_ascii=False, indent=2)
 
-site.pages[itemtable].save(pagedata)
+site.pages[itemtable].save(
+    pagedata, summary=f"Extract data from patch {ver}" if VER == "DST" else "")
 
 if VER == "DST":
     shutil.rmtree("temp")
+
+exist = {page.name for page in site.allpages()}
+need = {line[0]: f"<tr><td>{line[0]}</td><td>[[{line[1]}]]</td></tr>" for line in tqdm(
+    new_itemtable) if not line[1] in exist and not '{' in line[1] and not r'%s' in line[1] and not r'\n' in line[1]}
+pagetext = f"""\
+从 chinese_s.po 的 STRING.NAMES 中自动提取的全部缺失页面，可能含有废弃的prefab及其翻译（例如：anchor_sketch）
+<table class="wikitable sortable mw-collapsible mw-collapsed">
+<tr><th>prefab</th><th>页面</th></tr>
+{"".join([need[id] for id in sorted(need.keys()) if "quagmire" not in id])}
+</table>
+"""
+if VER == "DST":
+    pagetext += f"""\
+<table class="wikitable sortable mw-collapsible mw-collapsed">
+<tr><th>暴食prefab</th><th>页面</th></tr>
+{"".join([need[id] for id in sorted(need.keys()) if "quagmire" in id])}
+</table>
+"""
+site.pages['Project:施工计划/缺失页面' if VER == "DST" else 'Project:施工计划/缺失页面/单机版'].save(
+    pagetext, summary=f"Extract data from patch {ver}" if VER == "DST" else "")
